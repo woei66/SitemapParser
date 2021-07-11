@@ -181,7 +181,13 @@ class SitemapParser
             throw new Exceptions\SitemapParserException('Invalid URL');
         }
         $this->history[] = $this->currentURL;
-        $response = is_string($urlContent) ? $urlContent : $this->getContent();
+        try {
+            $response = is_string($urlContent) ? $urlContent : $this->getContent();
+        } catch (Exceptions\SitemapParserException $e) {
+            throw new Exceptions\SitemapParserException($e->getMessage());
+        } catch (Exceptions\TransferException $e) {
+            throw new Exceptions\TransferException($e->getMessage());
+        }
         if (parse_url($this->currentURL, PHP_URL_PATH) === self::ROBOTSTXT_PATH) {
             $this->parseRobotstxt($response);
             return;
